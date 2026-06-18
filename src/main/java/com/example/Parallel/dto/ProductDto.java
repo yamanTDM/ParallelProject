@@ -1,5 +1,6 @@
 package com.example.Parallel.dto;
 
+import com.example.Parallel.entity.Product;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -31,5 +32,7 @@ public class ProductDto {
         private String description;
         private BigDecimal price;
         private Integer stock;
+
+
     }
 }

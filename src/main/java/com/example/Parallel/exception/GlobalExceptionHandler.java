@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
 
 @RestControllerAdvice
@@ -51,7 +52,11 @@ public class GlobalExceptionHandler {
         error.put("fields", fieldErrors);
         return ResponseEntity.badRequest().body(error);
     }
-
+    @ExceptionHandler(RejectedExecutionException.class)
+    public ResponseEntity<String> handleRejected(RejectedExecutionException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body("Server is busy, please try again later");
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex) {

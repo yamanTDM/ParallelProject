@@ -37,45 +37,32 @@ public class BatchTest {
 
         System.out.println("\n========================================");
         System.out.println("Batch TEST");
-        System.out.println("========================================\n");
 
 
         System.out.println("\n========================================");
-        System.out.println("Chunk Size 1");
-        System.out.println("========================================\n");
-
-        System.out.println("Chunk Size: 1");
-        System.out.println("Chunk count: " + dailySalesReport1.getChunksProcessed());
+        System.out.println("No Dividing into Chunks");
         System.out.println("Order count: " + dailySalesReport1.getTotalOrders());
-        System.out.println("Process Time: " + dailySalesReport1.getProcessingTimeMs());
+        System.out.println("Process Time: " + dailySalesReport1.getProcessingTimeMs()+ " ms");
         System.out.println("\n========================================");
         System.out.println("Chunk Size 5");
-        System.out.println("========================================\n");
-        System.out.println("Chunk Size: 5");
         System.out.println("Chunk count: " + dailySalesReport5.getChunksProcessed());
         System.out.println("Order count: " + dailySalesReport5.getTotalOrders());
-        System.out.println("Process Time: " + dailySalesReport5.getProcessingTimeMs());
+        System.out.println("Process Time: " + dailySalesReport5.getProcessingTimeMs()+ " ms");
         System.out.println("\n========================================");
         System.out.println("Chunk Size 10");
-        System.out.println("========================================\n");
-        System.out.println("Chunk Size: 10");
         System.out.println("Chunk count: " + dailySalesReport10.getChunksProcessed());
         System.out.println("Order count: " + dailySalesReport10.getTotalOrders());
-        System.out.println("Process Time: " + dailySalesReport10.getProcessingTimeMs());
+        System.out.println("Process Time: " + dailySalesReport10.getProcessingTimeMs()+ " ms");
         System.out.println("\n========================================");
         System.out.println("Chunk Size 25");
-        System.out.println("========================================\n");
-        System.out.println("Chunk Size: 25");
         System.out.println("Chunk count: " + dailySalesReport25.getChunksProcessed());
         System.out.println("Order count: " + dailySalesReport25.getTotalOrders());
-        System.out.println("Process Time: " + dailySalesReport25.getProcessingTimeMs());
+        System.out.println("Process Time: " + dailySalesReport25.getProcessingTimeMs()+ " ms");
         System.out.println("\n========================================");
         System.out.println("Chunk Size 50");
-        System.out.println("========================================\n");
-        System.out.println("Chunk Size: 50");
         System.out.println("Chunk count: " + dailySalesReport50.getChunksProcessed());
         System.out.println("Order count: " + dailySalesReport50.getTotalOrders());
-        System.out.println("Process Time: " + dailySalesReport50.getProcessingTimeMs());
+        System.out.println("Process Time: " + dailySalesReport50.getProcessingTimeMs()+ " ms");
         System.out.println("\n");
     }
 

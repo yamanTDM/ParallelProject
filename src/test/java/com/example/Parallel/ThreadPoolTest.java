@@ -23,28 +23,28 @@ class ThreadPoolTest {
     @Test
     void compareSpringPoolVsRawExecutor() throws Exception {
 
-        int tasks = 1000;
-        long durationMs = 5000;
+        int tasks = 800;
+        long durationMs = 3000;
         int cores = Runtime.getRuntime().availableProcessors();
         int rawPoolSize = cores * (1 + 10);
-        System.out.println("\n========================================");
-        System.out.println("SPRING THREAD POOL TEST");
+        System.out.println("========================================");
+        System.out.println("THREAD POOL TEST");
         System.out.println("========================================");
 
         long springTime = runSpringPoolTest(tasks, durationMs);
 
-        System.out.println("\n========================================");
-        System.out.println("RAW EXECUTOR TEST");
+        System.out.println("========================================");
+        System.out.println("NO THREAD POOL TEST");
         System.out.println("========================================");
 
         long rawTime = runRawExecutorTest(tasks, durationMs, rawPoolSize);
 
-        System.out.println("\n========================================");
+        System.out.println("========================================");
         System.out.println("FINAL COMPARISON");
         System.out.println("========================================");
 
-        System.out.println("Spring Pool Time : " + springTime + " ms");
-        System.out.println("Raw Executor Time: " + rawTime + " ms");
+        System.out.println("Thread Pool Time : " + springTime + " ms");
+        System.out.println("No Thread Pool Time: " + rawTime + " ms");
 
     }
 
@@ -131,7 +131,6 @@ class ThreadPoolTest {
         Map<String, Object> after =
                 getSpringPoolStats();
 
-        System.out.println("\n--- SPRING SUMMARY ---");
         System.out.println("Succeeded : "
                 + successCount.get());
 
@@ -233,7 +232,6 @@ class ThreadPoolTest {
         long totalTime =
                 System.currentTimeMillis() - startTime;
 
-        System.out.println("\n--- RAW EXECUTOR SUMMARY ---");
         System.out.println("Succeeded : "
                 + successCount.get());
 

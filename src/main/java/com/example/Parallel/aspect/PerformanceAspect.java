@@ -6,6 +6,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -14,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Slf4j
 @Aspect
 @Component
+@Order(2)
 public class PerformanceAspect {
 
     private static final long WARN_THRESHOLD_MS  =  500;
@@ -51,16 +54,19 @@ public class PerformanceAspect {
         String label = sig.getDeclaringType().getSimpleName()
                 + "." + sig.getName();
 
+        String traceId = MDC.get("traceId");
+        String traceInfo = (traceId != null) ? "  traceId=" + traceId : "";
+
         if (elapsedMs > ERROR_THRESHOLD_MS) {
-            log.error("[PERF] {} → {}ms  ✗ VERY SLOW (>{}ms)",
-                    label, elapsedMs, ERROR_THRESHOLD_MS);
+            log.error("[PERF] {} → {}ms  ✗ VERY SLOW (>{}ms){}",
+                    label, elapsedMs, ERROR_THRESHOLD_MS, traceInfo);
 
         } else if (elapsedMs > WARN_THRESHOLD_MS) {
-            log.warn("[PERF] {} → {}ms  ⚠ SLOW (>{}ms)",
-                    label, elapsedMs, WARN_THRESHOLD_MS);
+            log.warn("[PERF] {} → {}ms  ⚠ SLOW (>{}ms){}",
+                    label, elapsedMs, WARN_THRESHOLD_MS, traceInfo);
 
         } else {
-            log.debug("[PERF] {} → {}ms  ✓", label, elapsedMs);
+            log.debug("[PERF] {} → {}ms  ✓{}", label, elapsedMs, traceInfo);
         }
     }
 }

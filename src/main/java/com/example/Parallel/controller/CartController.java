@@ -43,13 +43,6 @@ public class CartController {
 
     @PostMapping("/checkout")
     public ResponseEntity<OrderDto.Response> checkoutCart(Authentication auth) {
-        OrderDto.Response order = cartService.checkout(auth.getName());
-
-        return ResponseEntity.ok(order);
-    }
-
-    @PostMapping("/checkout/async")
-    public ResponseEntity<OrderDto.Response> checkoutCart2(Authentication auth) {
         try {
             CompletableFuture<OrderDto.Response> future =
                     orderProcessingService.checkoutAsync(auth.getName());

@@ -1,5 +1,6 @@
 package com.example.Parallel.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Data
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "users")
 public class User implements UserDetails {
 

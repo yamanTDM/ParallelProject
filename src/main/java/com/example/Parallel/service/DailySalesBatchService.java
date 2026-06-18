@@ -34,7 +34,7 @@ public class DailySalesBatchService {
     private static final int CHUNK_SIZE = 50;
 
 
-
+    //to create a report of all sales today at 12am
     @Scheduled(cron = "0 0 0 * * *")
     public void runDailyBatchJob() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -43,7 +43,7 @@ public class DailySalesBatchService {
     }
 
 
-
+    //to process the orders on certain day for the daily report
     public DailySalesReport processDaySales(LocalDate date) {
         String dateStr = date.toString();
 
@@ -72,12 +72,11 @@ public class DailySalesBatchService {
         for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
             final int pageNumber = chunkIndex;
             log.info("[BatchJob] Submitting chunk {}/{}", chunkIndex + 1, totalChunks);
-
             CompletableFuture<ChunkResult> future = chunkProcessingService.processChunkAsync(pageNumber, dayStart, dayEnd,CHUNK_SIZE);
             futures.add(future);
         }
 
-
+        //Syncronize Point
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         BigDecimal totalRevenue    = BigDecimal.ZERO;
@@ -130,7 +129,7 @@ public class DailySalesBatchService {
 
     record ChunkResult(int orderCount, BigDecimal revenue, int unitsSold) {}
 
-
+    //to process the orders on certain day for the daily report TESTING
     public DailySalesReport processDaySalesTest(LocalDate date, int chunkSize) {
         String dateStr = date.toString();
 

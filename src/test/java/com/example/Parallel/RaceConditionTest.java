@@ -54,7 +54,7 @@ class RaceConditionTest {
 
         for (int i = 0; i < stock; i++) {
             executor.submit(() -> {
-                productService.purchaseSafeTest(productSafeId);
+                productService.purchaseSafeLockTest(productSafeId);
             });
         }
         for (int i = 0; i < stock; i++) {

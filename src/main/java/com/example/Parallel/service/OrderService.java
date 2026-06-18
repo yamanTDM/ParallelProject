@@ -21,15 +21,13 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final UserService userService;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
 
 
     @Transactional
     public OrderDto.Response createOrder(String email, OrderDto.Request request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+        User user = userService.getUser(email);
         Order order = new Order();
         order.setUser(user);
 
@@ -73,8 +71,8 @@ public class OrderService {
     }
 
     public List<OrderDto.Response> getUserOrders(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userService.getUser(email);
+
 
         return orderRepository.findByUserId(user.getId())
                 .stream()

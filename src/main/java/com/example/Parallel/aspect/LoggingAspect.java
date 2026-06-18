@@ -6,6 +6,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Slf4j
 @Aspect
 @Component
+@Order(3)
 public class LoggingAspect {
 
     private static final Set<String> SENSITIVE_PARAMS = Set.of(

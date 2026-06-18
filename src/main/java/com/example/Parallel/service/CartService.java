@@ -2,11 +2,13 @@ package com.example.Parallel.service;
 
 import com.example.Parallel.dto.CartDto;
 import com.example.Parallel.dto.OrderDto;
+import com.example.Parallel.dto.ProductDto;
 import com.example.Parallel.entity.*;
 import com.example.Parallel.exception.BadRequestException;
 import com.example.Parallel.exception.ResourceNotFoundException;
 import com.example.Parallel.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,15 +23,14 @@ import java.util.stream.Collectors;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final ProductService productService;
+    private final UserService userService;
     private final OrderRepository orderRepository;
     private final AsyncTaskService asyncTaskService;
 
-
+    //to get or create a cart if there isn't one
     public Cart getOrCreateCart(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+        User user = userService.getUser(email);
 
         return cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> {
@@ -40,11 +41,12 @@ public class CartService {
     }
 
 
+    //to add an item to a cart
     @Transactional
     public CartDto.Response addItemToCart(String email, CartDto.AddItemRequest request) {
         Cart cart = getOrCreateCart(email);
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product does not exist"));
+        Product product = getProduct(productService.getById(request.getProductId()));
+
 
         if (product.getStock() < request.getQuantity()) {
                 throw new BadRequestException("The requested quantity is not available in stock");
@@ -70,10 +72,10 @@ public class CartService {
         }
 
         cartRepository.save(cart);
-        return getCartResponse(email);
+        return mapCartResponse(cart);
     }
 
-
+    //to check out cart
     @Transactional
     public OrderDto.Response checkout(String email) {
         Cart cart = getOrCreateCart(email);
@@ -95,11 +97,7 @@ public class CartService {
 
         for (CartItem cartItem :sortedItems) {
 
-            Product product = productRepository.findProductAndLock(cartItem.getProduct().getId());
-
-            if (product.getStock() < cartItem.getQuantity()) {
-                throw new BadRequestException("Product " + product.getName() + " is no longer available in the required quantity.");
-            }
+            Product product = getProduct(productService.getById(cartItem.getProduct().getId()));
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -109,9 +107,8 @@ public class CartService {
             orderItems.add(orderItem);
 
             total = total.add(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
-
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
+            //Synchronization Point
+            productService.updateStock(product.getId(),cartItem.getQuantity());
         }
 
         order.setItems(orderItems);
@@ -159,6 +156,32 @@ public class CartService {
         response.setCartTotal(cartTotal);
         return response;
     }
+    private CartDto.Response mapCartResponse(Cart cart) {
+        CartDto.Response response = new CartDto.Response();
+        response.setId(cart.getId());
+
+        BigDecimal cartTotal = BigDecimal.ZERO;
+        List<CartDto.Response.ItemResponse> itemResponses = new ArrayList<>();
+
+        for (CartItem item : cart.getItems()) {
+            CartDto.Response.ItemResponse itemRes = new CartDto.Response.ItemResponse();
+            itemRes.setId(item.getId());
+            itemRes.setProductId(item.getProduct().getId());
+            itemRes.setProductName(item.getProduct().getName());
+            itemRes.setQuantity(item.getQuantity());
+            itemRes.setPrice(item.getProduct().getPrice());
+
+            BigDecimal subTotal = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            itemRes.setSubTotal(subTotal);
+            itemResponses.add(itemRes);
+
+            cartTotal = cartTotal.add(subTotal);
+        }
+
+        response.setItems(itemResponses);
+        response.setCartTotal(cartTotal);
+        return response;
+    }
 
     private OrderDto.Response mapToOrderResponse(Order order) {
         OrderDto.Response res = new OrderDto.Response();
@@ -168,7 +191,7 @@ public class CartService {
         return res;
     }
 
-
+    //to remove item from cart
     @Transactional
     public CartDto.Response removeItemFromCart(String email, Integer productId) {
         Cart cart = getOrCreateCart(email);
@@ -182,6 +205,18 @@ public class CartService {
         }
 
         cartRepository.save(cart);
-        return getCartResponse(email);
+        return mapCartResponse(cart);
     }
+
+    public Product getProduct(ProductDto.Response response) {
+        Product product = new Product();
+        product.setId(response.getId());
+        product.setName(response.getName());
+        product.setPrice(response.getPrice());
+        product.setStock(response.getStock());
+        product.setDescription(response.getDescription());
+        return product;
+
+    }
+
 }
